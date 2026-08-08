@@ -1,4 +1,4 @@
-import { formatReadable, formatTime12Hour, timeToMinutes, getTodayKey } from './utils.js';
+import { formatReadable, formatTime12Hour, timeToMinutes, getTodayKey, escapeHtml } from './utils.js';
 import { getDB, saveDB, ensureDayShape, blankDay } from './storage.js';
 import { updateLiveSummary, resetOpenEntryRefs } from './timer.js';
 import { renderGarden, renderHeatmap, renderTrendChart } from './charts.js';
@@ -29,7 +29,7 @@ export function loadHistoryData() {
 
     let bHtml = "";
     if (!day.breaks || day.breaks.length === 0) bHtml = "<em>No break logs recorded.</em>";
-    else { day.breaks.forEach((b) => { bHtml += `<div class="stat-row"><span><strong>[${formatTime12Hour(b.time)}]</strong> ${b.reason}</span><span style="display:flex; align-items:center; gap:8px;"><span style="color:#a78bfa;">${formatReadable(b.duration)}</span><button class="del" onclick="deleteBreakEntry('${dt}','${b.id}')">✕</button></span></div>`; }); }
+    else { day.breaks.forEach((b) => { bHtml += `<div class="stat-row"><span><strong>[${formatTime12Hour(b.time)}]</strong> ${escapeHtml(b.reason)}</span><span style="display:flex; align-items:center; gap:8px;"><span style="color:#a78bfa;">${formatReadable(b.duration)}</span><button class="del" onclick="deleteBreakEntry('${dt}','${b.id}')">✕</button></span></div>`; }); }
     document.getElementById("history-break-list").innerHTML = bHtml;
 
     // Sort sessions: earliest to latest

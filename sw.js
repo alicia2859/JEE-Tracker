@@ -1,4 +1,11 @@
-const CACHE_NAME = "jee-tracker-v2.1.0";
+// IMPORTANT: bump this version string on every deploy that changes any file
+// listed in APP_SHELL below (i.e. basically every deploy). The fetch handler
+// is cache-first, so returning visitors keep getting served whatever was
+// cached under CACHE_NAME until the string itself changes — that's the only
+// thing that makes the activate handler below delete the old cache and let
+// the new files be fetched fresh. Forgetting this step means fixes silently
+// never reach anyone who doesn't manually hard-refresh.
+const CACHE_NAME = "jee-tracker-v2.2.0";
 const APP_SHELL = [
   "./",
   "./index.html",

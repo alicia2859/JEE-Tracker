@@ -10,8 +10,8 @@ export const SYLLABUS_SUBJECTS = {
         12: ["Electrostatics","Current Electricity","Capacitance","Moving Charges & Magnetism","Magnetism & Matter","EMI","Alternating Current","EM Waves","Ray Optics","Wave Optics","Dual Nature of Radiation & Matter","Atoms","Nuclei","Semiconductors"]
     },
     "Maths": {
-        11: ["Basic Maths","Sets","Trig Functions","Trig Equations","Quadratic Equations","Sequences & Series","Relations & Functions","P&C","Binomial Theorem","Limits & Derivatives","Linear Inequalities","Straight Lines","Circles","Parabola","Ellipse","Hyperbola","Probability(XI)","Intro to 3D","Complex Numbers","Statistics","Solution of Triangles"],
-        12: ["Determinants","Matrices","Relations & Functions","Inverse Trig Functions","Limits/Continuity/Differentiability","Method of Differentiation","Application of Derivatives","Indefinite/Definite Integration","Application of Integrals","Differential Equations","Vector Algebra","3D Geometry","Probability","Linear Programming"]
+        11: ["Basic Maths","Sets","Trig Functions","Trig Equations","Quadratic Equations","Sequences & Series","Relations & Functions (Part 1)","P&C","Binomial Theorem","Limits & Derivatives","Linear Inequalities","Straight Lines","Circles","Parabola","Ellipse","Hyperbola","Probability(XI)","Intro to 3D","Complex Numbers","Statistics","Solution of Triangles"],
+        12: ["Determinants","Matrices","Relations & Functions (Part 2)","Inverse Trig Functions","Limits/Continuity/Differentiability","Method of Differentiation","Application of Derivatives","Indefinite/Definite Integration","Application of Integrals","Differential Equations","Vector Algebra","3D Geometry","Probability","Linear Programming"]
     },
     "OC": {
         11: ["IUPAC Nomenclature","GOC","Isomerism","Purification & Analysis"],

@@ -16,6 +16,19 @@ button.btn { padding: 12px 20px; font-size: 14px; font-weight: 700; border-radiu
 .btn-yellow { background: #eab308; color: #1a1400; }
 .btn:hover { opacity: 0.9; transform: translateY(-1px); }
 .btn-small { padding: 8px 12px; font-size: 12px; }
+.btn-compact { padding: 7px 10px; font-size: 11px; }
+
+/* ===== Single-line button rows (no wrapping to a 2nd row) ===== */
+.btn-row-nowrap {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) var(--bg);
+}
+.btn-row-nowrap .btn { flex: 0 0 auto; white-space: nowrap; }
 
 /* ===== Form inputs ===== */
 select, input[type="text"], input[type="date"] { width: 100%; padding: 10px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; margin-top: 5px; box-sizing: border-box; }

@@ -411,7 +411,7 @@ ctx.textAlign = "left";
     // ---- Study Heatmap (centered in left half) ----
     ctx.fillStyle = "#f1f5f9"; ctx.font = "bold 22px sans-serif"; ctx.textAlign = "center";
     ctx.fillText("Study Heatmap", leftHalfCenter, sectionTitleY);
-    const hmColors = ["#141e30", "#0c3448", "#008080", "#00e5ff", "#b2ebf2"];
+    const hmColors = ["#2b3852", "#0c3448", "#008080", "#00e5ff", "#b2ebf2"];
     const dow = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     ctx.fillStyle = "#64748b"; ctx.font = "12px sans-serif";
     for (let j = 0; j < 7; j++) { ctx.fillText(dow[j], heatmapX + 11 + j * (cellSize + cellGap), heatmapDowY); }
@@ -475,12 +475,54 @@ ctx.textAlign = "left";
     return canvas;
 }
 
+function getReportDayRange(type) {
+    let today = new Date();
+    let days = [];
+    let range = (type === 'weekly') ? 6 : 29;
+    for (let i = range; i >= 0; i--) { let d = new Date(today); d.setDate(today.getDate() - i); days.push(dateKeyFromWall(d.getTime())); }
+    return days;
+}
+
 export function downloadReport(type) {
-        let today = new Date();
-        let days = [];
-        let range = (type === 'weekly') ? 6 : 29;
-        for (let i = range; i >= 0; i--) { let d = new Date(today); d.setDate(today.getDate() - i); days.push(dateKeyFromWall(d.getTime())); }
+        let days = getReportDayRange(type);
         let canvas = buildReportCanvas(days, type === 'weekly' ? '📊 Weekly Study Report' : '📊 Monthly Study Report');
         canvas.toBlob((blob) => { let url = URL.createObjectURL(blob); let a = document.createElement("a"); a.href = url; a.download = `report-${type}-${getTodayKey()}.png`; a.click(); URL.revokeObjectURL(url); showToast(`${type} report downloaded.`); });
+    }
+
+// Aggregated share text for a weekly/monthly report — mirrors buildShareText's
+// style but sums across the whole date range instead of a single day.
+function buildReportShareText(days, type) {
+    let db = getDB();
+    let totalStudy = 0, totalBreak = 0;
+    let aggregateSubjects = { ...blankDay().subjects };
+    days.forEach(key => {
+        let day = db[key]; if (!day) return;
+        ensureDayShape(day);
+        totalStudy += day.totalStudy || 0;
+        totalBreak += day.totalBreak || 0;
+        for (let [cat, sec] of Object.entries(day.subjects)) aggregateSubjects[cat] = (aggregateSubjects[cat] || 0) + (sec || 0);
+    });
+    let label = type === 'weekly' ? '📊 Weekly Study Report' : '📊 Monthly Study Report';
+    let lines = [label, `🗓 ${days[0]} → ${days[days.length - 1]}`, `⏱ Total Study: ${formatReadable(totalStudy)}`, `☕ Total Break: ${formatReadable(totalBreak)}`, `🔥 Streak: ${computeStreak(db)} days`, ``];
+    lines.push(`Subject breakdown:`);
+    for (let [cat, sec] of Object.entries(aggregateSubjects)) if (sec > 0) lines.push(`• ${cat}: ${formatReadable(sec)}`);
+    lines.push(``, `Tracked with my JEE Study Tracker 🎯`);
+    return lines.join("\n");
+}
+
+// Shares a weekly/monthly report the same way shareDayLog() shares a single
+// day: native share sheet with the PNG + summary text when available,
+// falling back to a download + clipboard copy.
+export async function shareReport(type) {
+        let days = getReportDayRange(type);
+        let text = buildReportShareText(days, type);
+        let canvas = buildReportCanvas(days, type === 'weekly' ? '📊 Weekly Study Report' : '📊 Monthly Study Report');
+        canvas.toBlob(async (blob) => {
+            let file = new File([blob], `report-${type}-${getTodayKey()}.png`, { type: "image/png" });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title: type === 'weekly' ? "My Weekly Study Report" : "My Monthly Study Report", text }); return; } catch (e) { if (e.name === "AbortError") return; } }
+            if (navigator.share) { try { await navigator.share({ title: type === 'weekly' ? "My Weekly Study Report" : "My Monthly Study Report", text }); return; } catch (e) { if (e.name === "AbortError") return; } }
+            let url = URL.createObjectURL(blob); let a = document.createElement("a"); a.href = url; a.download = `report-${type}-${getTodayKey()}.png`; a.click(); URL.revokeObjectURL(url);
+            try { await navigator.clipboard.writeText(text); showToast("Image downloaded & summary copied!"); } catch (e) { showToast("Image downloaded!"); }
+        }, "image/png");
     }
 

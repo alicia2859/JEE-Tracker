@@ -1,4 +1,4 @@
-import { formatHMS, formatReadable, dateKeyFromWall, getTodayKey } from './utils.js';
+import { formatHMS, formatReadable, dateKeyFromWall, getTodayKey, generateId } from './utils.js';
 import { getDB, saveDB, blankDay, ensureDayShape, initToday, saveActiveSessionRaw, readActiveSessionRaw, clearActiveSessionRaw } from './storage.js';
 // Forward references to modules landing in later steps — safe because these
 // are only invoked inside function bodies, after the full module graph
@@ -72,22 +72,26 @@ export function commitActiveSegment() {
                 day.subjects[activeSubject] = (day.subjects[activeSubject] || 0) + chunkSec;
                 day.totalStudy += chunkSec;
                 let ref = openEntryRefs[refKey];
-                if (ref && day.studySessions[ref.index] && day.studySessions[ref.index].subject === activeSubject) {
-                    day.studySessions[ref.index].duration += chunkSec;
-                    day.studySessions[ref.index].time = stamp;
+                let existing = ref ? day.studySessions.find(s => s.id === ref.id) : null;
+                if (existing && existing.subject === activeSubject) {
+                    existing.duration += chunkSec;
+                    existing.time = stamp;
                 } else {
-                    day.studySessions.push({ time: stamp, subject: activeSubject, duration: chunkSec });
-                    openEntryRefs[refKey] = { index: day.studySessions.length - 1 };
+                    let newEntry = { id: generateId(), time: stamp, subject: activeSubject, duration: chunkSec };
+                    day.studySessions.push(newEntry);
+                    openEntryRefs[refKey] = { id: newEntry.id };
                 }
             } else if (timerState === "BREAK") {
                 day.totalBreak += chunkSec;
                 let ref = openEntryRefs[refKey];
-                if (ref && day.breaks[ref.index]) {
-                    day.breaks[ref.index].duration += chunkSec;
-                    day.breaks[ref.index].time = stamp;
+                let existing = ref ? day.breaks.find(b => b.id === ref.id) : null;
+                if (existing) {
+                    existing.duration += chunkSec;
+                    existing.time = stamp;
                 } else {
-                    day.breaks.push({ time: stamp, reason: activeBreakReason, duration: chunkSec });
-                    openEntryRefs[refKey] = { index: day.breaks.length - 1 };
+                    let newEntry = { id: generateId(), time: stamp, reason: activeBreakReason, duration: chunkSec };
+                    day.breaks.push(newEntry);
+                    openEntryRefs[refKey] = { id: newEntry.id };
                 }
             }
         }

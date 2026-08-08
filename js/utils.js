@@ -108,3 +108,11 @@ export function shiftDateByYears(baseIso, years) {
     d.setFullYear(d.getFullYear() + years);
     return d;
 }
+
+// Stable unique id for study-session / break entries. Array *index* is not
+// safe to use as an identifier for these because loadHistoryData() sorts
+// (and re-saves) these arrays by time on every render — an id survives
+// reordering, an index does not.
+export function generateId() {
+    return `${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+}

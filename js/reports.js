@@ -349,7 +349,7 @@ function buildReportCanvas(days, title) {
     const sectionTitleY = 360;
     const heatmapDowY = sectionTitleY + 34;
     const heatmapGridStartY = heatmapDowY + 16;
-    const cellSize = 22, cellGap = 6;
+    const cellSize = 27, cellGap = 7;
     const heatmapWidth = 7 * cellSize + 6 * cellGap;          // 190px
     const heatmapX = leftHalfCenter - heatmapWidth / 2;        // centered in left half
     const heatmapRows = Math.ceil(Math.min(dayData.length, 35) / 7);
@@ -448,14 +448,30 @@ ctx.textAlign = "left";
     }
     ctx.textAlign = "left";
 
-    // ---- Daily Performance Breakdown (2-column table) ----
-    ctx.fillStyle = "#f1f5f9"; ctx.font = "bold 22px sans-serif"; ctx.fillText("Daily Performance Breakdown", 20, tableTitleY);
+    // ---- Daily Performance Breakdown (2-column table, centered as a block) ----
+    // Compute the table's horizontal layout dynamically so the two-column
+    // block sits with equal margins left and right, instead of being
+    // pinned to the left edge while empty space collects on the right.
+    ctx.font = "16px sans-serif";
+    const statusMaxWidth = Math.max(ctx.measureText("✅ Goal Met").width, ctx.measureText("❌ Missed").width);
+    const colInnerGap = 120;   // date -> study -> break -> status spacing within one block
+    const blockGap = 100;      // gap between the left block and the right block
+    const blockContentWidth = 3 * colInnerGap + statusMaxWidth; // date..status offset + status text width
+    const tableTotalWidth = blockContentWidth * 2 + blockGap;
+    const tableLeftMargin = (width - tableTotalWidth) / 2;
 
-    const colX = { left: { date: 20, study: 140, break: 260, status: 380 }, right: { date: 600, study: 720, break: 840, status: 960 } };
+    const colX = {
+        left: { date: tableLeftMargin, study: tableLeftMargin + colInnerGap, break: tableLeftMargin + 2 * colInnerGap, status: tableLeftMargin + 3 * colInnerGap },
+        right: {}
+    };
+    colX.right = { date: colX.left.date + blockContentWidth + blockGap, study: colX.left.study + blockContentWidth + blockGap, break: colX.left.break + blockContentWidth + blockGap, status: colX.left.status + blockContentWidth + blockGap };
+
+    ctx.fillStyle = "#f1f5f9"; ctx.font = "bold 22px sans-serif"; ctx.fillText("Daily Performance Breakdown", tableLeftMargin, tableTitleY);
+
     ctx.fillStyle = "#64748b"; ctx.font = "16px sans-serif";
     ctx.fillText("Date", colX.left.date, tableHeaderY); ctx.fillText("Study", colX.left.study, tableHeaderY); ctx.fillText("Break", colX.left.break, tableHeaderY); ctx.fillText("Status", colX.left.status, tableHeaderY);
     ctx.fillText("Date", colX.right.date, tableHeaderY); ctx.fillText("Study", colX.right.study, tableHeaderY); ctx.fillText("Break", colX.right.break, tableHeaderY); ctx.fillText("Status", colX.right.status, tableHeaderY);
-    ctx.strokeStyle = "#232f48"; ctx.beginPath(); ctx.moveTo(20, tableDividerY); ctx.lineTo(1170, tableDividerY); ctx.stroke();
+    ctx.strokeStyle = "#232f48"; ctx.beginPath(); ctx.moveTo(tableLeftMargin, tableDividerY); ctx.lineTo(width - tableLeftMargin, tableDividerY); ctx.stroke();
 
     dayData.forEach((d, i) => {
         let col = (i % 2 === 0) ? colX.left : colX.right;

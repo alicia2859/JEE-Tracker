@@ -1,4 +1,4 @@
-import { getTodayKey } from './utils.js';
+import { getTodayKey, generateId } from './utils.js';
 // Circular by design: addToYtHistory/deleteYtHistoryEntry re-render and
 // re-fetch the title after writing, exactly like the original inline script
 // did. Safe because both imports are only used inside function bodies
@@ -25,6 +25,10 @@ export function blankDay() {
 export function ensureDayShape(day) {
     if (!day.studySessions) day.studySessions = [];
     if (!day.breaks) day.breaks = [];
+    // Backfill ids on entries saved before this fix — sorting/deleting now
+    // relies on id, not array position.
+    day.studySessions.forEach(s => { if (!s.id) s.id = generateId(); });
+    day.breaks.forEach(b => { if (!b.id) b.id = generateId(); });
     return day;
 }
 

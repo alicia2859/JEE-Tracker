@@ -29,7 +29,7 @@ export function loadHistoryData() {
 
     let bHtml = "";
     if (!day.breaks || day.breaks.length === 0) bHtml = "<em>No break logs recorded.</em>";
-    else { day.breaks.forEach((b, i) => { bHtml += `<div class="stat-row"><span><strong>[${formatTime12Hour(b.time)}]</strong> ${b.reason}</span><span style="display:flex; align-items:center; gap:8px;"><span style="color:#a78bfa;">${formatReadable(b.duration)}</span><button class="del" onclick="deleteBreakEntry('${dt}',${i})">✕</button></span></div>`; }); }
+    else { day.breaks.forEach((b) => { bHtml += `<div class="stat-row"><span><strong>[${formatTime12Hour(b.time)}]</strong> ${b.reason}</span><span style="display:flex; align-items:center; gap:8px;"><span style="color:#a78bfa;">${formatReadable(b.duration)}</span><button class="del" onclick="deleteBreakEntry('${dt}','${b.id}')">✕</button></span></div>`; }); }
     document.getElementById("history-break-list").innerHTML = bHtml;
 
     // Sort sessions: earliest to latest
@@ -40,7 +40,7 @@ export function loadHistoryData() {
 
     let sessHtml = "";
     if (!day.studySessions || day.studySessions.length === 0) sessHtml = "<em>No individual sessions recorded.</em>";
-    else { day.studySessions.forEach((s, i) => { sessHtml += `<div class="session-log-item"><span><strong>[${formatTime12Hour(s.time)}]</strong> ${s.subject}</span><span style="display:flex; align-items:center; gap:8px;"><span style="color:var(--success);">${formatReadable(s.duration)}</span><button class="del" onclick="deleteStudySessionEntry('${dt}',${i})">✕</button></span></div>`; }); }
+    else { day.studySessions.forEach((s) => { sessHtml += `<div class="session-log-item"><span><strong>[${formatTime12Hour(s.time)}]</strong> ${s.subject}</span><span style="display:flex; align-items:center; gap:8px;"><span style="color:var(--success);">${formatReadable(s.duration)}</span><button class="del" onclick="deleteStudySessionEntry('${dt}','${s.id}')">✕</button></span></div>`; }); }
     document.getElementById("history-session-list").innerHTML = sessHtml;
 }
 
@@ -53,8 +53,10 @@ export function deleteSubjectEntry(dt, subject) {
     saveDB(db); loadHistoryData(); if (dt === getTodayKey()) updateLiveSummary(); renderGarden(); renderHeatmap(); renderTrendChart();
 }
 
-export function deleteStudySessionEntry(dt, idx) {
-    let db = getDB(); if (!db[dt] || !db[dt].studySessions || !db[dt].studySessions[idx]) return;
+export function deleteStudySessionEntry(dt, id) {
+    let db = getDB(); if (!db[dt] || !db[dt].studySessions) return;
+    let idx = db[dt].studySessions.findIndex(s => s.id === id);
+    if (idx < 0) return;
     let entry = db[dt].studySessions[idx];
     if (!confirm(`Delete this one ${formatReadable(entry.duration)} session?`)) return;
     db[dt].totalStudy = Math.max(0, db[dt].totalStudy - entry.duration);
@@ -63,8 +65,10 @@ export function deleteStudySessionEntry(dt, idx) {
     saveDB(db); loadHistoryData(); if (dt === getTodayKey()) updateLiveSummary(); renderGarden(); renderHeatmap(); renderTrendChart();
 }
 
-export function deleteBreakEntry(dt, idx) {
-    let db = getDB(); if (!db[dt] || !db[dt].breaks || !db[dt].breaks[idx]) return;
+export function deleteBreakEntry(dt, id) {
+    let db = getDB(); if (!db[dt] || !db[dt].breaks) return;
+    let idx = db[dt].breaks.findIndex(b => b.id === id);
+    if (idx < 0) return;
     let entry = db[dt].breaks[idx];
     if (!confirm(`Delete this ${formatReadable(entry.duration)} break?`)) return;
     db[dt].totalBreak = Math.max(0, db[dt].totalBreak - entry.duration);

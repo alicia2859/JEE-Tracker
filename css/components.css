@@ -30,6 +30,25 @@ button.btn { padding: 12px 20px; font-size: 14px; font-weight: 700; border-radiu
 }
 .btn-row-nowrap .btn { flex: 0 0 auto; white-space: nowrap; }
 
+/* Single-line row that SHRINKS buttons to fit (no scrollbar, ever) —
+   used where a fixed-size nowrap row would overflow (e.g. 6 report buttons
+   in a ~1100px container). Buttons share width equally and their text may
+   wrap to 2 lines, but the row itself never wraps or scrolls. */
+.btn-row-fit {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+}
+.btn-row-fit .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    white-space: normal;
+    text-align: center;
+    padding: 7px 6px;
+    font-size: 11px;
+    line-height: 1.25;
+}
+
 /* ===== Form inputs ===== */
 select, input[type="text"], input[type="date"] { width: 100%; padding: 10px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; margin-top: 5px; box-sizing: border-box; }
 

@@ -32,7 +32,8 @@ import {
 } from './history.js';
 
 import {
-    saveSleepLog, toggleSleepHistory, deleteSleepLogEntry
+    saveSleepLog, toggleSleepHistory, deleteSleepLogEntry,
+    renderSleepPendingBanner, cancelPendingSleepLog
 } from './sleep.js';
 
 import {
@@ -53,7 +54,7 @@ import { deleteYtHistoryEntry } from './storage.js';
 import { renderGarden, renderHeatmap, renderTrendChart } from './charts.js';
 
 import {
-    downloadDayLog, shareDayLog, sendReportViaEmail, downloadReport
+    downloadDayLog, shareDayLog, sendReportViaEmail, downloadReport, shareReport
 } from './reports.js';
 
 import { exportDataJSON, importDataJSON } from './backup.js';
@@ -93,7 +94,7 @@ Object.assign(window, {
     loadHistoryData, deleteSubjectEntry, deleteStudySessionEntry,
     deleteBreakEntry, deleteStudyLog, deleteBreakLog,
     // sleep.js
-    saveSleepLog, toggleSleepHistory, deleteSleepLogEntry,
+    saveSleepLog, toggleSleepHistory, deleteSleepLogEntry, cancelPendingSleepLog,
     // syllabus.js
     toggleSyllabusChapterExpand, toggleSyllabusTag, setSyllabusSubject,
     // mocktest.js
@@ -103,7 +104,7 @@ Object.assign(window, {
     loadYoutubeLink, toggleYtHistory, loadFromYtHistory, ytTogglePlay,
     ytSetVolume, ytToggleLoop, deleteYtHistoryEntry,
     // reports.js
-    downloadDayLog, shareDayLog, sendReportViaEmail, downloadReport,
+    downloadDayLog, shareDayLog, sendReportViaEmail, downloadReport, shareReport,
     // backup.js
     exportDataJSON, importDataJSON,
     // firebase-sync.js
@@ -146,6 +147,7 @@ async function initApp() {
     renderSidebarTools();
     initPlannerCalendar();
     renderMistakeTagPicker();
+    renderSleepPendingBanner();
     renderNotifSettingsUI();
     updateNotifPermissionStatus();
 

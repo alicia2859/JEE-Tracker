@@ -1,5 +1,5 @@
 import { escapeHtml } from './utils.js';
-import { getYtHistory, addToYtHistory, saveYtHistory, setRawFlag } from './storage.js';
+import { getYtHistory, saveYtHistory, setRawFlag, YT_HISTORY_MAX_ENTRIES } from './storage.js';
 // Forward reference — ui.js lands in Step 7. Only called inside function
 // bodies, safe once the full module graph is wired in main.js.
 import { showToast } from './ui.js';
@@ -71,6 +71,25 @@ export function loadYoutubeLink() {
     document.getElementById("yt-player-wrap").style.display = "block";
     if (!ytApiReady) { ytPendingVideoId = id; loadYTApiScript(); return; }
     createOrLoadYTPlayer(id);
+}
+
+// Moved here from storage.js — storage.js now only exposes plain
+// getYtHistory/saveYtHistory, and this module (the only caller) owns the
+// re-render + title-fetch behavior that goes with adding/removing an entry.
+export function addToYtHistory(id, url) {
+    let hist = getYtHistory().filter(v => v.id !== id);
+    hist.unshift({ id, url, title: null, addedAt: Date.now() });
+    if (hist.length > YT_HISTORY_MAX_ENTRIES) hist = hist.slice(0, YT_HISTORY_MAX_ENTRIES);
+    saveYtHistory(hist);
+    renderYtHistory();
+    fetchYtTitle(id);
+}
+
+export function deleteYtHistoryEntry(id) {
+    if (!confirm("Remove this video from history?")) return;
+    let hist = getYtHistory().filter(v => v.id !== id);
+    saveYtHistory(hist);
+    renderYtHistory();
 }
 
 export function fetchYtTitle(id) {

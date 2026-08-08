@@ -325,7 +325,7 @@
             <h3 style="margin-top:0;">Today's Live Summary</h3>
             <div class="stat-row">
                 <span style="color:var(--muted);">Total Study:</span>
-                <strong id="live-study-val" style="color:var(--success);">0h 0m 0s</strong>
+                <strong id="live-study-val" style="color:#a78bfa;">0h 0m 0s</strong>
             </div>
             <div class="stat-row">
                 <span style="color:var(--muted);">Total Breaks:</span>
@@ -378,7 +378,7 @@
         </div>
         <div style="border-top:1px solid var(--border); padding-top:10px;">
             <h4 style="margin:0 0 4px 0;">📊 Weekly / Monthly Reports</h4>
-            <div class="btn-row-nowrap">
+            <div class="btn-row-fit">
                 <button class="btn btn-break btn-compact" onclick="downloadReport('weekly')">Download Weekly Report</button>
                 <button class="btn btn-break btn-compact" onclick="downloadReport('monthly')">Download Monthly Report</button>
                 <button class="btn btn-start btn-compact" onclick="sendReportViaEmail('weekly', false)">Send Weekly Report via Email</button>
@@ -399,8 +399,8 @@
         </div>
         <div class="btn-row-nowrap" style="margin-top:10px;">
             <button class="btn btn-stop btn-compact" onclick="deleteStudyLog()">🗑 Delete Study Log</button>
-            <button class="btn btn-start btn-compact" onclick="sendReportViaEmail('daily', false)">📧 Send Daily Report via Email</button>
             <button class="btn btn-stop btn-compact" onclick="deleteBreakLog()">🗑 Delete Break Log</button>
+            <button class="btn btn-start btn-compact" style="padding:6px 8px; font-size:10px;" onclick="sendReportViaEmail('daily', false)">Send Daily Report via Email</button>
             <button class="btn btn-pause btn-compact" onclick="shareDayLog()">📤 Share Log</button>
             <button class="btn btn-pause btn-compact" onclick="downloadDayLog()">💾 Download Log</button>
         </div>

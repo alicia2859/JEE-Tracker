@@ -47,9 +47,8 @@ import {
 
 import {
     loadYoutubeLink, toggleYtHistory, loadFromYtHistory, ytTogglePlay,
-    ytSetVolume, ytToggleLoop
+    ytSetVolume, ytToggleLoop, deleteYtHistoryEntry
 } from './youtube.js';
-import { deleteYtHistoryEntry } from './storage.js';
 
 import { renderGarden, renderHeatmap, renderTrendChart } from './charts.js';
 

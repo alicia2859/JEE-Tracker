@@ -193,6 +193,7 @@ export function tick() {
 }
 
 export function updateUIState() {
+    if (timerState === "STUDYING" || timerState === "BREAK") requestWakeLock(); else releaseWakeLock();
     let badge = document.getElementById("status-badge");
     let btnStart = document.getElementById("btn-start");
     let btnPause = document.getElementById("btn-pause");
@@ -240,3 +241,36 @@ export function updateLiveSummary() {
 
 document.addEventListener("visibilitychange", () => { if (document.hidden) flushAndRestartSegment(); });
 window.addEventListener("pagehide", () => { commitActiveSegment(); });
+
+// ----------------- SCREEN WAKE LOCK -----------------
+// Keeps the display from auto-locking while a study/break session is
+// running (same idea as a video app staying awake during playback).
+// Unsupported browsers (no navigator.wakeLock) just silently no-op —
+// everything else keeps working exactly as before.
+let wakeLockSentinel = null;
+
+async function requestWakeLock() {
+    if (!("wakeLock" in navigator) || wakeLockSentinel) return;
+    try {
+        wakeLockSentinel = await navigator.wakeLock.request("screen");
+        wakeLockSentinel.addEventListener("release", () => { wakeLockSentinel = null; });
+    } catch (e) {
+        // Common causes: low battery mode, permissions policy, or the tab
+        // was already hidden when requested — fail silently, no user-facing
+        // error, the timer itself is unaffected either way.
+        wakeLockSentinel = null;
+    }
+}
+
+async function releaseWakeLock() {
+    if (!wakeLockSentinel) return;
+    try { await wakeLockSentinel.release(); } catch (e) {}
+    wakeLockSentinel = null;
+}
+
+// The browser force-releases the wake lock whenever the tab is hidden
+// (switch tabs, minimize, screen lock). If a session is still running when
+// the user comes back, re-acquire it.
+document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && (timerState === "STUDYING" || timerState === "BREAK")) requestWakeLock();
+});

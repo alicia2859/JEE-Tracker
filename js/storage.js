@@ -1,10 +1,4 @@
 import { getTodayKey, generateId } from './utils.js';
-// Circular by design: addToYtHistory/deleteYtHistoryEntry re-render and
-// re-fetch the title after writing, exactly like the original inline script
-// did. Safe because both imports are only used inside function bodies
-// (called after the full module graph, including youtube.js from Step 5,
-// has loaded) — never at module-evaluation time.
-import { renderYtHistory, fetchYtTitle } from './youtube.js';
 
 // ----------------- KEYS / CONSTANTS -----------------
 const SYLLABUS_KEY = "jee_syllabus_progress";
@@ -89,26 +83,14 @@ export function getNotifSettings() { let raw = localStorage.getItem("jee_notif_s
 export function saveNotifSettings(s) { localStorage.setItem("jee_notif_settings", JSON.stringify(s)); }
 
 // ----------------- YOUTUBE HISTORY -----------------
+// Pure read/write only — storage.js stays the only file touching
+// localStorage directly. The render/re-fetch behavior around these
+// (addToYtHistory, deleteYtHistoryEntry) now lives in youtube.js itself,
+// since that's the only module that ever calls them; this also removes the
+// storage.js -> youtube.js -> storage.js circular import that used to exist.
 export function getYtHistory() { try { return JSON.parse(localStorage.getItem(YT_HISTORY_KEY) || "[]"); } catch (e) { return []; } }
-
-export function addToYtHistory(id, url) {
-    let hist = getYtHistory().filter(v => v.id !== id);
-    hist.unshift({ id, url, title: null, addedAt: Date.now() });
-    if (hist.length > YT_HISTORY_MAX) hist = hist.slice(0, YT_HISTORY_MAX);
-    localStorage.setItem(YT_HISTORY_KEY, JSON.stringify(hist));
-    renderYtHistory();
-    fetchYtTitle(id);
-}
-
-// Used by fetchYtTitle (youtube.js) once the oEmbed title comes back.
 export function saveYtHistory(hist) { localStorage.setItem(YT_HISTORY_KEY, JSON.stringify(hist)); }
-
-export function deleteYtHistoryEntry(id) {
-    if (!confirm("Remove this video from history?")) return;
-    let hist = getYtHistory().filter(v => v.id !== id);
-    localStorage.setItem(YT_HISTORY_KEY, JSON.stringify(hist));
-    renderYtHistory();
-}
+export const YT_HISTORY_MAX_ENTRIES = YT_HISTORY_MAX;
 
 // ----------------- MOCK TESTS (IndexedDB) -----------------
 // Bumped from 1 -> 2. Some browsers ended up with this database already

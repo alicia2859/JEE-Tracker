@@ -15,7 +15,7 @@ export
         let lines = [`📚 Study Log — ${dt}`, `⏱ Total Study: ${formatReadable(day.totalStudy)}`, `☕ Total Break: ${formatReadable(day.totalBreak)}`, ``];
         lines.push(`Subject breakdown:`);
         for (let [cat, sec] of Object.entries(day.subjects)) if (sec > 0) lines.push(`• ${cat}: ${formatReadable(sec)}`);
-        lines.push(``, `Tracked with my JEE Study Tracker 🎯`);
+        lines.push(``, `Tracked with @ẞhì's JEE Study Tracker 🎯`);
         return lines.join("\n");
     }
 

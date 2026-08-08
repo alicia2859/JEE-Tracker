@@ -3,6 +3,7 @@
 // inline onclick/onchange handlers call onto `window` (ES module functions
 // are not global by default), and replicates the original single-file
 // version's window.onload initialization sequence exactly.
+
 import { getTodayKey } from './utils.js';
 import { getLastBackupAt, markBackupDone, resetAllData } from './storage.js';
 
@@ -10,17 +11,17 @@ import {
     openSubjectModal, cancelSubjectModal, confirmStartStudy,
     pauseStudy, resumeStudy, takeBreak, changeSubjectMidSession, endDay,
     setCurrentDayKey, tryRestoreActiveSession, startAutosave,
-    updateUIState, updateLiveSummary
+    updateUIState, updateLiveSummary, flushAndRestartSegment
 } from './timer.js';
 
 import {
-    closeSidebar, openSidebarPanel,
+    showToast, closeSidebar, openSidebarPanel, checkDayRollover,
     renderQuoteOfDay, renderExamYearUI, setExamYear, tickCountdowns
 } from './ui.js';
 
 import {
     initPlannerCalendar, addTodo, renderSidebarTools, toggleTodo, deleteTodo,
-    calShiftMonth, openPlannerModal, closePlannerModal,
+    calShiftMonth, renderPlannerCalendar, openPlannerModal, closePlannerModal,
     addPlannerTask, togglePlannerTask, deletePlannerTask,
     openDatePicker
 } from './planner.js';
@@ -49,7 +50,7 @@ import {
 } from './youtube.js';
 import { deleteYtHistoryEntry } from './storage.js';
 
-import { renderHeatmap, renderTrendChart } from './charts.js';
+import { renderGarden, renderHeatmap, renderTrendChart } from './charts.js';
 
 import {
     downloadDayLog, shareDayLog, sendReportViaEmail, downloadReport
@@ -77,12 +78,17 @@ Object.assign(window, {
     // timer.js
     openSubjectModal, cancelSubjectModal, confirmStartStudy,
     pauseStudy, resumeStudy, takeBreak, changeSubjectMidSession, endDay,
+    updateLiveSummary, flushAndRestartSegment,
     // ui.js
-    closeSidebar, openSidebarPanel, setExamYear,
+    showToast, closeSidebar, openSidebarPanel, checkDayRollover,
+    renderQuoteOfDay, renderExamYearUI, setExamYear, tickCountdowns,
     // planner.js
-    addTodo, toggleTodo, deleteTodo, calShiftMonth, openPlannerModal,
-    closePlannerModal, addPlannerTask, togglePlannerTask, deletePlannerTask,
+    addTodo, toggleTodo, deleteTodo, calShiftMonth, renderSidebarTools,
+    renderPlannerCalendar, openPlannerModal, closePlannerModal,
+    addPlannerTask, togglePlannerTask, deletePlannerTask,
     openDatePicker,
+    // charts.js
+    renderGarden, renderHeatmap, renderTrendChart,
     // history.js
     loadHistoryData, deleteSubjectEntry, deleteStudySessionEntry,
     deleteBreakEntry, deleteStudyLog, deleteBreakLog,
@@ -164,4 +170,3 @@ async function initApp() {
 }
 
 initApp();
-

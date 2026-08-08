@@ -242,7 +242,7 @@ export async function sendReportViaEmail(type, silent = false) {
 
         // If manually triggered, prompt for email (optional)
         if (manuallyTriggered) {
-            let userEmail = prompt("Enter email to send to (or leave blank for signed-in email):");
+            let userEmail = prompt("Enter email to send to OR (leave blank & click ok for signed-in email):");
             if (userEmail && userEmail.trim() !== "") {
                let domain = userEmail.split('@')[1];
 if (!domain || !ALLOWED_EMAIL_DOMAINS.includes(domain.toLowerCase())) {

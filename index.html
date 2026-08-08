@@ -377,13 +377,13 @@
         </div>
         <div style="border-top:1px solid var(--border); padding-top:10px;">
             <h4 style="margin:0 0 4px 0;">📊 Weekly / Monthly Reports</h4>
-            <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                <button class="btn btn-break btn-small" onclick="downloadReport('weekly')">Download Weekly Report</button>
-                <button class="btn btn-break btn-small" onclick="downloadReport('monthly')">Download Monthly Report</button>
-                <button class="btn btn-start btn-small" onclick="sendReportViaEmail('weekly', false)">Send Weekly Report via Email</button>
-                <button class="btn btn-start btn-small" onclick="sendReportViaEmail('monthly', false)">Send Monthly Report via Email</button>
-                <button class="btn btn-yellow btn-small" onclick="shareReport('weekly')">📤 Share Weekly Report</button>
-                <button class="btn btn-yellow btn-small" onclick="shareReport('monthly')">📤 Share Monthly Report</button>
+            <div class="btn-row-nowrap">
+                <button class="btn btn-break btn-compact" onclick="downloadReport('weekly')">Download Weekly Report</button>
+                <button class="btn btn-break btn-compact" onclick="downloadReport('monthly')">Download Monthly Report</button>
+                <button class="btn btn-start btn-compact" onclick="sendReportViaEmail('weekly', false)">Send Weekly Report via Email</button>
+                <button class="btn btn-start btn-compact" onclick="sendReportViaEmail('monthly', false)">Send Monthly Report via Email</button>
+                <button class="btn btn-yellow btn-compact" onclick="shareReport('weekly')">📤 Share Weekly Report</button>
+                <button class="btn btn-yellow btn-compact" onclick="shareReport('monthly')">📤 Share Monthly Report</button>
             </div>
             <div class="small-note" style="margin-top:4px; color:var(--warning);">Emails are automatically sent on Sundays and at month-ends if signed in. Use the buttons above to send manually.</div>
         </div>
@@ -396,11 +396,11 @@
             <input type="date" id="history-picker" onchange="loadHistoryData()">
             <button type="button" class="date-picker-btn" title="Open date picker" onclick="openDatePicker('history-picker')">📅</button>
         </div>
-        <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
-            <button class="btn btn-stop" style="font-size:12px; padding:8px 14px;" onclick="deleteStudyLog()">🗑 Delete Study Log</button>
-            <button class="btn btn-stop" style="font-size:12px; padding:8px 14px;" onclick="deleteBreakLog()">🗑 Delete Break Log</button>
-            <button class="btn btn-pause" style="font-size:12px; padding:8px 14px;" onclick="shareDayLog()">📤 Share Log</button>
-            <button class="btn btn-pause" style="font-size:12px; padding:8px 14px;" onclick="downloadDayLog()">💾 Download Log</button>
+        <div class="btn-row-nowrap" style="margin-top:10px;">
+            <button class="btn btn-stop btn-compact" onclick="deleteStudyLog()">🗑 Delete Study Log</button>
+            <button class="btn btn-stop btn-compact" onclick="deleteBreakLog()">🗑 Delete Break Log</button>
+            <button class="btn btn-pause btn-compact" onclick="shareDayLog()">📤 Share Log</button>
+            <button class="btn btn-pause btn-compact" onclick="downloadDayLog()">💾 Download Log</button>
         </div>
             <div class="grid-2" style="margin-top:15px;">
         <div>

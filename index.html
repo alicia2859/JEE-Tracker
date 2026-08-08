@@ -71,6 +71,7 @@
                 <button class="btn btn-start btn-small" style="flex:1;" onclick="saveSleepLog()">Save Log</button>
                 <button class="btn btn-break btn-small" style="flex:1;" onclick="toggleSleepHistory()">🕘 History</button>
             </div>
+            <div id="sleep-pending-banner" style="display:none; align-items:center; justify-content:space-between; gap:8px; margin-top:8px; padding:8px 10px; border:1px solid var(--warning); border-radius:6px; background:rgba(245,158,11,0.1); font-size:12px; color:var(--warning);"></div>
             <div id="sleep-history-container" style="display:none; margin-top:8px; max-height:200px; overflow-y:auto; border:1px solid var(--border); border-radius:6px; padding:6px; background:var(--bg);"></div>
         </div>
 
@@ -348,7 +349,7 @@
         <div class="heatmap-scroll"><div id="heatmap-container"></div></div>
         <div class="heatmap-legend">
             <span>Less</span>
-            <span class="sq" style="background:#141e30;"></span>
+            <span class="sq" style="background:#2b3852;"></span>
             <span class="sq" style="background:#0c3448;"></span>
             <span class="sq" style="background:#008080;"></span>
             <span class="sq" style="background:#00e5ff;"></span>
@@ -381,6 +382,8 @@
                 <button class="btn btn-break btn-small" onclick="downloadReport('monthly')">Download Monthly Report</button>
                 <button class="btn btn-start btn-small" onclick="sendReportViaEmail('weekly', false)">Send Weekly Report via Email</button>
                 <button class="btn btn-start btn-small" onclick="sendReportViaEmail('monthly', false)">Send Monthly Report via Email</button>
+                <button class="btn btn-yellow btn-small" onclick="shareReport('weekly')">📤 Share Weekly Report</button>
+                <button class="btn btn-yellow btn-small" onclick="shareReport('monthly')">📤 Share Monthly Report</button>
             </div>
             <div class="small-note" style="margin-top:4px; color:var(--warning);">Emails are automatically sent on Sundays and at month-ends if signed in. Use the buttons above to send manually.</div>
         </div>

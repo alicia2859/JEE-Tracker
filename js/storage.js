@@ -111,9 +111,21 @@ export function deleteYtHistoryEntry(id) {
 }
 
 // ----------------- MOCK TESTS (IndexedDB) -----------------
+// Bumped from 1 -> 2. Some browsers ended up with this database already
+// created at version 1 but missing the "tests" object store (a stale/partial
+// DB from an earlier session). IndexedDB only runs onupgradeneeded — which
+// is where the store gets created — when the requested version is HIGHER
+// than what's already stored. Reopening at the same version 1 forever never
+// re-ran that check, so the store was permanently missing and every
+// transaction() call (including the one inside pushToCloud()) threw
+// "One of the specified object stores was not found." Requesting version 2
+// forces onupgradeneeded to run once more; the existing
+// `if (!contains(MOCK_STORE))` guard then creates the missing store without
+// touching any data that *was* already there.
+const MOCK_DB_VERSION = 2;
 export function openMockDB() {
     return new Promise((resolve, reject) => {
-        let req = indexedDB.open(MOCK_DB_NAME, 1);
+        let req = indexedDB.open(MOCK_DB_NAME, MOCK_DB_VERSION);
         req.onupgradeneeded = (e) => {
             let db = e.target.result;
             if (!db.objectStoreNames.contains(MOCK_STORE)) db.createObjectStore(MOCK_STORE, { keyPath: "id" });

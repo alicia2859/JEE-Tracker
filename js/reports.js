@@ -243,7 +243,12 @@ export async function sendReportViaEmail(type, silent = false) {
         // If manually triggered, prompt for email (optional)
         if (manuallyTriggered) {
             let userEmail = prompt("Enter email to send to OR (leave blank & click ok for signed-in email):");
-            if (userEmail && userEmail.trim() !== "") {
+            // prompt() returns null on Cancel, but "" (empty string) on OK
+            // with a blank field — those are NOT the same thing. Only a
+            // blank OK should fall through to the signed-in email below;
+            // Cancel must abort the send entirely.
+            if (userEmail === null) return;
+            if (userEmail.trim() !== "") {
                let domain = userEmail.split('@')[1];
 if (!domain || !ALLOWED_EMAIL_DOMAINS.includes(domain.toLowerCase())) {
     if (manuallyTriggered) {

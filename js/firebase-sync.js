@@ -81,7 +81,8 @@ export async function pushToCloud(silent = false) {
         // test entries themselves (subject, score, notes, mistake tags) DO
         // sync — only each entry's `files` array is stripped before upload.
         let mockTests = (await getAllMockTests()).map(({ files, ...rest }) => rest);
-        await fbDb.collection("users").doc(currentUser.uid).set({
+        let docRef = fbDb.collection("users").doc(currentUser.uid);
+        await docRef.set({
             studyDB: getDB(),
             plannerDB: getPlannerDB(),
             sleepLog: getSleepLog(),
@@ -93,6 +94,15 @@ export async function pushToCloud(silent = false) {
             mockTests,
             updatedAt: now
         });
+        // Verify the write actually landed on the server (force a real
+        // round-trip, bypassing local cache) before trusting it. Without
+        // this, set() can resolve successfully off the SDK's local cache
+        // while the server ends up holding different data — silently
+        // desyncing "last synced" from what's actually in the cloud.
+        let confirmDoc = await docRef.get({ source: "server" });
+        if (!confirmDoc.exists || confirmDoc.data().updatedAt !== now) {
+            throw new Error("Write did not verify on the server — try again.");
+        }
         setRawFlag("jee_last_sync", now.toString());
         renderSyncUI();
         if (!silent) showToast("Saved to the cloud.");

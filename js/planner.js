@@ -83,11 +83,15 @@ export function addPlannerTask() {
 }
 
 export function togglePlannerTask(idx) {
-    let db = getPlannerDB(); db[plannerActiveDateKey][idx].done = !db[plannerActiveDateKey][idx].done; savePlannerDB(db); renderPlannerTasks();
+    let db = getPlannerDB();
+    if (!db[plannerActiveDateKey] || !db[plannerActiveDateKey][idx]) return;
+    db[plannerActiveDateKey][idx].done = !db[plannerActiveDateKey][idx].done; savePlannerDB(db); renderPlannerTasks();
 }
 
 export function deletePlannerTask(idx) {
-    let db = getPlannerDB(); db[plannerActiveDateKey].splice(idx, 1); savePlannerDB(db); renderPlannerTasks();
+    let db = getPlannerDB();
+    if (!db[plannerActiveDateKey]) return;
+    db[plannerActiveDateKey].splice(idx, 1); savePlannerDB(db); renderPlannerTasks();
 }
 
 export function renderPlannerTasks() {

@@ -33,6 +33,7 @@ export function saveSleepLog() {
         document.getElementById("wake-time-input").value = "";
         document.getElementById("sleep-time-input").value = "";
         renderSleepLog();
+        renderSleepPendingBanner();
         showToast("Bedtime logged — log your wake time to complete it.");
         return;
     }
@@ -81,6 +82,7 @@ export function saveSleepLog() {
         document.getElementById("wake-time-input").value = "";
         document.getElementById("sleep-time-input").value = "";
         renderSleepLog();
+        renderSleepPendingBanner();
         return;
     }
 
@@ -117,8 +119,28 @@ export function saveSleepLog() {
         document.getElementById("wake-time-input").value = "";
         document.getElementById("sleep-time-input").value = "";
         renderSleepLog();
+        renderSleepPendingBanner();
         showToast("Sleep log saved.");
     }
+}
+
+// Shows a small banner with a ✕ button whenever a sleep time has been
+// logged but the matching wake time hasn't come in yet, so a wrong entry
+// can be cancelled immediately instead of only being fixable from History.
+export function renderSleepPendingBanner() {
+    let banner = document.getElementById("sleep-pending-banner");
+    if (!banner) return;
+    let pending = getSleepPending();
+    if (!pending) { banner.style.display = "none"; banner.innerHTML = ""; return; }
+    banner.style.display = "flex";
+    banner.innerHTML = `<span>⏳ Pending: slept ${formatTime12Hour(fmtTime(pending.time))} on ${formatDateDDMMYYYY(pending.date)} — waiting for wake time.</span><button onclick="cancelPendingSleepLog()" title="Cancel this pending sleep log" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:16px; padding:0 4px; flex-shrink:0;">✕</button>`;
+}
+
+export function cancelPendingSleepLog() {
+    if (!confirm("Cancel this pending sleep log entry?")) return;
+    setSleepPending(null);
+    renderSleepPendingBanner();
+    showToast("Pending sleep log cancelled.");
 }
 
 // Render today's log status (simple update of history if open)

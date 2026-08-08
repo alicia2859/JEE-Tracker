@@ -1,4 +1,4 @@
-import { shiftDateByYears } from './utils.js';
+import { shiftDateByYears, getTodayKey } from './utils.js';
 import { getExamYear, setStoredExamYear, BASE_EXAM_YEAR, BASE_EXAM_DATES } from './storage.js';
 import { getCurrentDayKey, setCurrentDayKey, flushAndRestartSegment, updateLiveSummary } from './timer.js';
 import { initToday } from './storage.js';
@@ -63,7 +63,11 @@ export function openSidebarPanel(name) {
 
 // ----------------- DAY ROLLOVER -----------------
 export function checkDayRollover() {
-    let nowKey = new Date().toISOString().split('T')[0];
+    // BUG FIX: was `new Date().toISOString().split('T')[0]` (UTC date) —
+    // see the comment on getTodayKey() in utils.js. That made day-rollover
+    // fire at 5:30 AM local (IST) instead of local midnight, so anything
+    // studied between 00:00–05:30 local got flushed/keyed to the wrong day.
+    let nowKey = getTodayKey();
     if (nowKey === getCurrentDayKey()) return;
     flushAndRestartSegment();
     setCurrentDayKey(nowKey);

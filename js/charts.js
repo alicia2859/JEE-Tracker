@@ -113,7 +113,11 @@ export function renderHeatmap() {
         weeks.push(week);
     }
     let cell = 13; let gap = 4; let width = weeks.length * (cell + gap) + 16; let height = 7 * (cell + gap) + 10; let svg = `<svg width="${width}" height="${height}">`;
-    const hmColors = ["#2b3852", "#b2ebf2", "#0c3448", "#008080", "#00e5ff"];
+    // CHANGE: swapped indices 1 and 2. Previously ["#2b3852","#b2ebf2","#0c3448","#008080","#00e5ff"] —
+    // the 2nd bucket (#b2ebf2) was a pale, whitish tint sitting between two dark colors, so the
+    // "Less -> More" progression visually got brighter then darker then brighter again instead of
+    // ramping smoothly. Moving the dark navy to position 1 and the whitish tint to the middle fixes that.
+    const hmColors = ["#2b3852", "#0c3448", "#b2ebf2", "#008080", "#00e5ff"];
     weeks.forEach((week, wi) => {
         week.forEach((day, di) => {
             if (day.date > today) return;

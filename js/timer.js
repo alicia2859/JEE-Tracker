@@ -24,6 +24,17 @@ let autosaveInterval = null;
 let currentSegmentId = 0;
 let openEntryRefs = {};
 let currentDayKey = null;
+// BUG FIX: commitActiveSegment() converts each chunk's elapsed ms to whole
+// seconds with Math.floor() before storing, and used to just discard the
+// leftover fraction (up to 999ms) every single time it ran. It runs on
+// every pause, resume, break, subject switch, tab-hide, pagehide, and every
+// 20s autosave tick — so on a long study session those sub-second losses
+// compound into real, systematic missing minutes (this is exactly what the
+// stress test's "Sum of Study Session Durations" / "Total Study Time"
+// mismatches were catching). carryMs banks the leftover fraction from each
+// commit and folds it into the next one instead of dropping it, so no time
+// is ever permanently lost — only ever deferred to the next chunk.
+let carryMs = 0;
 let activeSubject = "Physics";
 let activeBreakReason = "Break";
 
@@ -49,6 +60,21 @@ export function startSegment() {
 }
 
 export function commitActiveSegment() {
+    // BUG FIX: this used to run unconditionally, even when timerState was
+    // "PAUSED" or "IDLE". takeBreak() is reachable directly from PAUSED (the
+    // Break button stays visible while paused — see index.html), and it
+    // calls commitActiveSegment() before switching state to BREAK. Because
+    // pauseStudy() never resets segmentStartPerf, that stale call computed
+    // elapsed time going all the way back to the ORIGINAL study start (study
+    // time + the entire paused gap), not just the pause duration. The state
+    // check below correctly stopped that bogus total from being written to
+    // any subject/day (PAUSED matches neither the STUDYING nor BREAK branch)
+    // — but the carryMs fractional-second remainder from that bogus
+    // calculation was still being kept and would leak up to ~999ms of
+    // phantom time into the next *real* segment's commit. Bailing out here
+    // whenever we're not actually STUDYING or on a BREAK stops that leak at
+    // the source, and also skips a wasted loop + saveDB() call.
+    if (timerState !== "STUDYING" && timerState !== "BREAK") return;
     let nowPerf = performance.now();
     segmentElapsedMs = nowPerf - segmentStartPerf;
     if (segmentElapsedMs <= 0) return;
@@ -61,7 +87,12 @@ export function commitActiveSegment() {
         let nextMidnight = new Date(cd.getFullYear(), cd.getMonth(), cd.getDate() + 1, 0, 0, 0, 0).getTime();
         let chunkEnd = Math.min(nextMidnight, wallEnd);
         let chunkMs = chunkEnd - cursor;
-        let chunkSec = Math.floor(chunkMs / 1000);
+        // Fold in whatever fraction of a second was left over from the
+        // previous commit (any state) before flooring, then bank whatever
+        // fraction is left over *this* time for the next commit.
+        let roundedMs = chunkMs + carryMs;
+        let chunkSec = Math.floor(roundedMs / 1000);
+        carryMs = roundedMs - chunkSec * 1000;
         let dayKey = dateKeyFromWall(cursor);
         if (chunkSec > 0) {
             if (!db[dayKey]) db[dayKey] = blankDay();
@@ -178,7 +209,7 @@ export function changeSubjectMidSession() { activeSubject = document.getElementB
 
 export function endDay() {
     commitActiveSegment(); cancelAnimationFrame(animFrame);
-    timerState = "IDLE"; segmentElapsedMs = 0; sessionStudyMs = 0; clearActiveSession();
+    timerState = "IDLE"; segmentElapsedMs = 0; sessionStudyMs = 0; carryMs = 0; clearActiveSession();
     updateUIState();
     document.getElementById("session-timer").innerText = "00:00:00";
     updateLiveSummary(); loadHistoryData(); renderGarden(); renderHeatmap(); renderTrendChart();
@@ -240,7 +271,17 @@ export function updateLiveSummary() {
 }
 
 document.addEventListener("visibilitychange", () => { if (document.hidden) flushAndRestartSegment(); });
-window.addEventListener("pagehide", () => { commitActiveSegment(); });
+// BUG FIX: was `commitActiveSegment()` — commits the segment but never
+// restarts it (segmentStartPerf stays at its old value). pagehide fires on
+// real navigation/close (harmless either way, nothing runs after), but also
+// fires in cases where the page context survives (e.g. bfcache) — if the
+// user comes back to that same still-running tab, the next commit would
+// recompute elapsed time from the stale pre-pagehide start and double-count
+// everything already committed here. flushAndRestartSegment() commits AND
+// calls startSegment() again, so the segment's baseline is always correct
+// whether or not the page actually unloads. It also already guards for
+// STUDYING/BREAK, so this is a strict improvement with no downside.
+window.addEventListener("pagehide", () => { flushAndRestartSegment(); });
 
 // ----------------- SCREEN WAKE LOCK -----------------
 // Keeps the display from auto-locking while a study/break session is

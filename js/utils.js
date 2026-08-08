@@ -64,7 +64,17 @@ export function dateKeyFromWall(ms) {
     return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
 }
 
-export function getTodayKey() { return new Date().toISOString().split('T')[0]; }
+// BUG FIX: this used to be `new Date().toISOString().split('T')[0]`, which
+// reads the UTC calendar date, not the user's local date. For any timezone
+// ahead of UTC (e.g. IST, UTC+5:30), the UTC date doesn't roll over to
+// "tomorrow" until 5:30 AM local time — so from local midnight to 5:30 AM,
+// getTodayKey() still returned YESTERDAY's date while every other date key
+// in this app (dateKeyFromWall, used by the timer's own commit logic) had
+// already rolled over to today. That mismatch is what let stress-test/log
+// entries and rollover checks land under the wrong day bucket. Routing
+// through dateKeyFromWall(Date.now()) makes this always agree with the
+// local-calendar-date logic the rest of the app already uses.
+export function getTodayKey() { return dateKeyFromWall(Date.now()); }
 
 export function mondayKeyFor(d) {
     let dt = new Date(d);

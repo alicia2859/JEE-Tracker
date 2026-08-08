@@ -172,6 +172,16 @@ function startCloudListener() {
     if (!fbDb || !currentUser || cloudUnsubscribe) return;
     cloudUnsubscribe = fbDb.collection("users").doc(currentUser.uid).onSnapshot(async (doc) => {
         if (!doc.exists) return;
+        // Skip local echoes of our own writes (pushToCloud). Firestore fires
+        // this listener the instant a write is queued locally, before the
+        // server acknowledges it and before pushToCloud has a chance to
+        // update jee_last_sync — a race that previously slipped past the
+        // timestamp check below and triggered a false "new data from
+        // another device" prompt, whose reload then aborted our own
+        // in-flight push. hasPendingWrites is true only for that unconfirmed
+        // local echo, never for a genuinely remote change, so this is a
+        // clean, race-free filter.
+        if (doc.metadata.hasPendingWrites) return;
         let lastLocalSync = parseInt(getRawFlag("jee_last_sync") || "0", 10);
         if (lastLocalSync <= 0) return;
         let data = doc.data();

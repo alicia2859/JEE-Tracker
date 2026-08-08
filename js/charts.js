@@ -113,7 +113,7 @@ export function renderHeatmap() {
         weeks.push(week);
     }
     let cell = 13; let gap = 4; let width = weeks.length * (cell + gap) + 16; let height = 7 * (cell + gap) + 10; let svg = `<svg width="${width}" height="${height}">`;
-    const hmColors = ["#232f48", "#0c3448", "#008080", "#00e5ff", "#b2ebf2"];
+    const hmColors = ["#2b3852", "#0c3448", "#008080", "#00e5ff", "#b2ebf2"];
     weeks.forEach((week, wi) => {
         week.forEach((day, di) => {
             if (day.date > today) return;

@@ -546,7 +546,7 @@ function buildReportShareText(days, type) {
     let lines = [label, `🗓 ${days[0]} → ${days[days.length - 1]}`, `⏱ Total Study: ${formatReadable(totalStudy)}`, `☕ Total Break: ${formatReadable(totalBreak)}`, `🔥 Streak: ${computeStreak(db)} days`, ``];
     lines.push(`Subject breakdown:`);
     for (let [cat, sec] of Object.entries(aggregateSubjects)) if (sec > 0) lines.push(`• ${cat}: ${formatReadable(sec)}`);
-    lines.push(``, `Tracked with my JEE Study Tracker 🎯`);
+    lines.push(``, `Tracked with @ẞhì's JEE Study Tracker 🎯`);
     return lines.join("\n");
 }
 

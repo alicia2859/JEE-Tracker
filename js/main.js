@@ -4,172 +4,111 @@
 // are not global by default), and replicates the original single-file
 // version's window.onload initialization sequence exactly.
 
-import { getTodayKey } from './utils.js';
-import { getRawFlag, getLastBackupAt, markBackupDone, resetAllData, initToday } from './storage.js';
-import {
-    setCurrentDayKey, updateLiveSummary, tryRestoreActiveSession, startAutosave,
-    openSubjectModal, cancelSubjectModal, confirmStartStudy, pauseStudy,
-    takeBreak, endDay, changeSubjectMidSession
-} from './timer.js';
-import {
-    closeSidebar, openSidebarPanel, tickCountdowns,
-    renderQuoteOfDay, renderExamYearUI, setExamYear
-} from './ui.js';
-import { initPlannerCalendar, renderSidebarTools, addTodo, toggleTodo, deleteTodo, addPlannerTask, deletePlannerTask, togglePlannerTask, openPlannerModal, closePlannerModal, calShiftMonth, openDatePicker } from './planner.js';
-import { loadHistoryData, deleteStudyLog, deleteBreakLog, deleteStudySessionEntry, deleteBreakEntry, deleteSubjectEntry } from './history.js';
-import { saveSleepLog, renderSleepLog, toggleSleepHistory, deleteSleepLogEntry } from './sleep.js';
-import { setSyllabusSubject, toggleSyllabusChapterExpand, toggleSyllabusTag } from './syllabus.js';
-import { renderMistakeTagPicker, addMockTestEntry, deleteMockTestEntry, viewMockFile, closeMockFileModal, toggleMistakeTag } from './mocktest.js';
-import { loadYoutubeLink, toggleYtHistory, ytTogglePlay, ytToggleLoop, ytSetVolume, loadFromYtHistory } from './youtube.js';
-import { deleteYtHistoryEntry } from './storage.js';
-import { renderHeatmap, renderTrendChart } from './charts.js';
-import { downloadDayLog, shareDayLog, downloadReport, sendReportViaEmail } from './reports.js';
-import { exportDataJSON, importDataJSON } from './backup.js';
-import { renderNotifSettingsUI, enableNotifications, saveNotifSettingsFromUI, stopAlarmLoop } from './notifications.js';
-import { firebaseConfigured, initFirebaseAuthIfNeeded, signInWithGoogle, signOutOfGoogle, pushToCloud, pullFromCloud, deleteCloudData, renderSyncUI } from './firebase-sync.js';
+import { escapeHtml, fileToDataURL, getTodayKey } from './utils.js';
+import { openMockDB, getAllMockTests, MOCK_STORE } from './storage.js';
+// Forward reference — ui.js lands in Step 7. Only called inside function
+// bodies, safe once the full module graph is wired in main.js.
+import { showToast } from './ui.js';
 
-// ----------------- WINDOW EXPOSURES -----------------
-// Every function referenced by an inline onclick/onchange/onkeypress/oninput
-// in index.html (or generated dynamically inside a render function's
-// template string) must be attached to window, since ES module scope is not
-// global scope. Cross-checked against every handler in index.html plus every
-// dynamically-generated handler across all 15 other modules — 59 total.
+export const MISTAKE_TAGS = ["Silly mistake", "Concept gap", "Time pressure", "Calculation error", "Misread question", "Not revised", "Panic/anxiety", "Guessed wrong", "Other"];
+let selectedMistakeTags = [];
 
-// timer.js
-window.openSubjectModal = openSubjectModal;
-window.cancelSubjectModal = cancelSubjectModal;
-window.confirmStartStudy = confirmStartStudy;
-window.pauseStudy = pauseStudy;
-window.takeBreak = takeBreak;
-window.endDay = endDay;
-window.changeSubjectMidSession = changeSubjectMidSession;
+export function renderMistakeTagPicker() {
+    let wrap = document.getElementById("mistake-tag-picker");
+    if (!wrap) return;
+    wrap.innerHTML = MISTAKE_TAGS.map(t => `<span class="mistake-tag-chip ${selectedMistakeTags.includes(t) ? 'selected' : ''}" onclick="toggleMistakeTag('${t.replace(/'/g, "\\'")}')">${t}</span>`).join('');
+}
 
-// ui.js
-window.closeSidebar = closeSidebar;
-window.openSidebarPanel = openSidebarPanel;
-window.setExamYear = setExamYear;
-
-// planner.js
-window.addTodo = addTodo;
-window.toggleTodo = toggleTodo;
-window.deleteTodo = deleteTodo;
-window.addPlannerTask = addPlannerTask;
-window.deletePlannerTask = deletePlannerTask;
-window.togglePlannerTask = togglePlannerTask;
-window.openPlannerModal = openPlannerModal;
-window.closePlannerModal = closePlannerModal;
-window.calShiftMonth = calShiftMonth;
-window.openDatePicker = openDatePicker;
-
-// history.js
-window.loadHistoryData = loadHistoryData;
-window.deleteStudyLog = deleteStudyLog;
-window.deleteBreakLog = deleteBreakLog;
-window.deleteStudySessionEntry = deleteStudySessionEntry;
-window.deleteBreakEntry = deleteBreakEntry;
-window.deleteSubjectEntry = deleteSubjectEntry;
-
-// sleep.js
-window.saveSleepLog = saveSleepLog;
-window.toggleSleepHistory = toggleSleepHistory;
-window.deleteSleepLogEntry = deleteSleepLogEntry;
-
-// syllabus.js
-window.setSyllabusSubject = setSyllabusSubject;
-window.toggleSyllabusChapterExpand = toggleSyllabusChapterExpand;
-window.toggleSyllabusTag = toggleSyllabusTag;
-
-// mocktest.js
-window.addMockTestEntry = addMockTestEntry;
-window.deleteMockTestEntry = deleteMockTestEntry;
-window.viewMockFile = viewMockFile;
-window.closeMockFileModal = closeMockFileModal;
-window.toggleMistakeTag = toggleMistakeTag;
-
-// youtube.js
-window.loadYoutubeLink = loadYoutubeLink;
-window.toggleYtHistory = toggleYtHistory;
-window.ytTogglePlay = ytTogglePlay;
-window.ytToggleLoop = ytToggleLoop;
-window.ytSetVolume = ytSetVolume;
-window.loadFromYtHistory = loadFromYtHistory;
-window.deleteYtHistoryEntry = deleteYtHistoryEntry;
-
-// reports.js
-window.downloadDayLog = downloadDayLog;
-window.shareDayLog = shareDayLog;
-window.downloadReport = downloadReport;
-window.sendReportViaEmail = sendReportViaEmail;
-
-// backup.js / storage.js
-window.exportDataJSON = exportDataJSON;
-window.importDataJSON = importDataJSON;
-window.resetAllData = resetAllData;
-
-// notifications.js
-window.enableNotifications = enableNotifications;
-window.saveNotifSettingsFromUI = saveNotifSettingsFromUI;
-window.stopAlarmLoop = stopAlarmLoop;
-
-// firebase-sync.js
-window.signInWithGoogle = signInWithGoogle;
-window.signOutOfGoogle = signOutOfGoogle;
-window.pushToCloud = pushToCloud;
-window.pullFromCloud = pullFromCloud;
-window.deleteCloudData = deleteCloudData;
-
-// Note: youtube.js's window.onYouTubeIframeAPIReady is set inside youtube.js
-// itself (the external YouTube IFrame API calls it by that exact global
-// name) — nothing to wire here.
-
-// ----------------- INIT (matches the original window.onload exactly) -----------------
-window.onload = function () {
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function (registrations) {
-            for (let registration of registrations) { registration.unregister(); }
-        });
-    }
-    console.log("✅ App Initialized Successfully");
-
-    let today = getTodayKey();
-    setCurrentDayKey(today);
-
-    let picker = document.getElementById("history-picker");
-    picker.value = today;
-    picker.setAttribute("max", today);
-
-    initToday();
-    updateLiveSummary();
-    renderSidebarTools();
-    loadHistoryData();
-
-    renderQuoteOfDay();
-    renderExamYearUI();
-    tickCountdowns();
-    setInterval(tickCountdowns, 1000);
-
-    renderHeatmap();
-    renderTrendChart();
-    document.getElementById("mock-date-input").value = today;
-
+export function toggleMistakeTag(tag) {
+    if (selectedMistakeTags.includes(tag)) selectedMistakeTags = selectedMistakeTags.filter(t => t !== tag);
+    else selectedMistakeTags.push(tag);
     renderMistakeTagPicker();
-    renderSleepLog();
+}
 
-    let lastYtLink = getRawFlag("jee_yt_last_link");
-    if (lastYtLink) document.getElementById("yt-link-input").value = lastYtLink;
+export function renderMistakeSummary(entries) {
+    let summaryEl = document.getElementById("mistake-tag-summary");
+    if (!summaryEl) return;
+    let counts = {};
+    entries.forEach(e => (e.mistakeTags || []).forEach(t => { counts[t] = (counts[t] || 0) + 1; }));
+    let tags = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+    if (tags.length === 0) { summaryEl.innerHTML = ""; return; }
+    summaryEl.innerHTML = `<div class="small-note" style="margin-bottom:2px;">Mistake pattern frequency:</div><div class="mistake-summary">${tags.map(t => `<span class="ms-pill">${escapeHtml(t)}: ${counts[t]}</span>`).join('')}</div>`;
+}
 
-    if (!getLastBackupAt()) markBackupDone();
+export async function addMockTestEntry() {
+    let date = document.getElementById("mock-date-input").value || getTodayKey();
+    let subject = document.getElementById("mock-subject-input").value.trim();
+    let score = document.getElementById("mock-score-input").value.trim();
+    let maxScore = document.getElementById("mock-maxscore-input").value.trim();
+    let notes = document.getElementById("mock-notes-input").value.trim();
+    let filesInput = document.getElementById("mock-files-input");
 
-    if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-        navigator.serviceWorker.register('sw.js').catch(() => {});
+    if (!subject) { alert("Enter the exam/subject name first."); return; }
+    if (score && isNaN(parseFloat(score))) { alert(`Score must be a number — "${score}" isn't valid.`); return; }
+    if (maxScore && isNaN(parseFloat(maxScore))) { alert(`Out of must be a number — "${maxScore}" isn't valid.`); return; }
+    if (score && maxScore) {
+        let sNum = parseFloat(score), mNum = parseFloat(maxScore);
+        if (sNum > mNum) { alert(`Score (${score}) can't be greater than Out of (${maxScore}) — please check the values.`); return; }
     }
 
-    initPlannerCalendar();
+    let files = []; for (let f of filesInput.files) files.push(await fileToDataURL(f));
+    let entry = { id: Date.now(), date, subject, score, maxScore, notes, files, mistakeTags: [...selectedMistakeTags] };
+    let db = await openMockDB();
+    let tx = db.transaction(MOCK_STORE, "readwrite");
+    tx.objectStore(MOCK_STORE).add(entry);
+    tx.oncomplete = () => {
+        showToast("Mock test entry saved.");
+        document.getElementById("mock-subject-input").value = "";
+        document.getElementById("mock-score-input").value = "";
+        document.getElementById("mock-maxscore-input").value = "";
+        document.getElementById("mock-notes-input").value = "";
+        filesInput.value = "";
+        selectedMistakeTags = [];
+        renderMistakeTagPicker();
+        renderMockTestList();
+    };
+}
 
-    tryRestoreActiveSession();
-    startAutosave();
+export async function deleteMockTestEntry(id) {
+    if (!confirm("Delete this mock test entry and its attachments?")) return;
+    let db = await openMockDB();
+    let tx = db.transaction(MOCK_STORE, "readwrite");
+    tx.objectStore(MOCK_STORE).delete(id);
+    tx.oncomplete = () => renderMockTestList();
+}
 
-    renderNotifSettingsUI();
-    renderSyncUI();
-    if (firebaseConfigured()) initFirebaseAuthIfNeeded();
-};
+export async function renderMockTestList() {
+    let list = document.getElementById("mock-test-list");
+    let entries = await getAllMockTests();
+    renderMistakeSummary(entries);
+    if (entries.length === 0) { list.innerHTML = "<div class='small-note' style='margin-top:10px;'>No mock tests logged yet.</div>"; return; }
+
+    let avg = 0, count = 0;
+    entries.forEach(e => {
+        if (e.score && e.maxScore && !isNaN(parseFloat(e.score)) && parseFloat(e.maxScore) > 0) {
+            let pct = (parseFloat(e.score) / parseFloat(e.maxScore)) * 100;
+            avg += pct; count++;
+        }
+    });
+    document.getElementById("mock-avg-score").innerText = count > 0 ? Math.round(avg/count) + "%" : "0%";
+    document.getElementById("mock-total-count").innerText = entries.length;
+
+    let html = "";
+    entries.forEach(e => {
+        html += `<div class="mock-entry"><div class="mock-top"><div><strong>${escapeHtml(e.subject)}</strong><div class="small-note" style="margin:0;">${e.date}</div></div><div style="display:flex; align-items:center; gap:8px;"><span class="mock-score">${e.score || '—'}${e.maxScore ? ' / ' + e.maxScore : ''}</span><button class="del" onclick="deleteMockTestEntry(${e.id})">✕</button></div></div>${e.notes ? `<div style="font-size:13px; margin-top:8px; white-space:pre-wrap;">${escapeHtml(e.notes)}</div>` : ''}${(e.mistakeTags && e.mistakeTags.length) ? `<div class="entry-tags">${e.mistakeTags.map(t => `<span>${escapeHtml(t)}</span>`).join('')}</div>` : ''}<div class="mock-files">${(e.files||[]).map((f, i) => f.type.startsWith('image/') ? `<img src="${f.dataUrl}" onclick="viewMockFile(${e.id},${i})">` : `<a class="pdf-chip" href="${f.dataUrl}" download="${f.name}">📄 ${escapeHtml(f.name)}</a>`).join('')}</div></div>`;
+    });
+    list.innerHTML = html + `<div style="height:40px;"></div>`; // Add bottom padding
+}
+
+export async function viewMockFile(entryId, fileIdx) {
+    let entries = await getAllMockTests();
+    let entry = entries.find(e => e.id === entryId);
+    if (!entry) return;
+    let f = entry.files[fileIdx];
+    document.getElementById("mock-file-modal-body").innerHTML = `<img src="${f.dataUrl}" style="max-width:100%; border-radius:8px;">`;
+    document.getElementById("mock-file-modal").style.display = "flex";
+}
+
+export function closeMockFileModal() {
+    document.getElementById("mock-file-modal").style.display = "none";
+}

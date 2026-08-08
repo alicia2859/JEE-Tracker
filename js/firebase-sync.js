@@ -91,6 +91,7 @@ export async function pushToCloud(silent = false) {
             notifSettings: getNotifSettings(),
             ytHistory: getYtHistory(),
             examYear: getExamYear(),
+            ytLastLink: getRawFlag("jee_yt_last_link") || "",
             mockTests,
             updatedAt: now
         });
@@ -111,17 +112,24 @@ export async function pushToCloud(silent = false) {
     }
 }
 
-// Replaces every local mock-test entry with the cloud set (file attachments
-// were never uploaded, so any local files for an entry that still exists
-// are simply not touched by this — only entries' text fields are replaced;
-// entries that only ever existed on another device arrive with no files).
+// Cloud mock-test entries never carry `files` (stripped before upload — see
+// pushToCloud). Never clear() the store or overwrite an existing local
+// entry: either would destroy locally-attached mock-test images/PDFs, or
+// wipe out a brand-new local entry the cloud snapshot predates. Only add
+// entries that don't already exist locally.
 async function restoreMockTests(entries) {
     if (!Array.isArray(entries)) return;
     let db = await openMockDB();
     let tx = db.transaction(MOCK_STORE, "readwrite");
     let store = tx.objectStore(MOCK_STORE);
-    store.clear();
-    entries.forEach(e => store.put(e));
+    for (const e of entries) {
+        const existing = await new Promise((resolve) => {
+            const req = store.get(e.id);
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => resolve(undefined);
+        });
+        if (!existing) store.put(e);
+    }
     await new Promise((resolve) => { tx.oncomplete = resolve; tx.onerror = resolve; });
 }
 
@@ -137,6 +145,7 @@ async function applyCloudData(data) {
     if (data.notifSettings) saveNotifSettings(data.notifSettings);
     if (data.ytHistory) saveYtHistory(data.ytHistory);
     if (data.examYear) setStoredExamYear(data.examYear);
+    if (data.ytLastLink) setRawFlag("jee_yt_last_link", data.ytLastLink);
     await restoreMockTests(data.mockTests);
 }
 

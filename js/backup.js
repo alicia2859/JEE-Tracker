@@ -1,10 +1,11 @@
 import { downloadBlob, getTodayKey } from './utils.js';
-import { getDB, saveDB, getPlannerDB, savePlannerDB, getNotifSettings, saveNotifSettings, getAllMockTests, openMockDB, MOCK_STORE, getSleepLog, writeSleepLog, getSleepPending, setSleepPending, getSyllabusProgress, saveSyllabusProgress, markBackupDone } from './storage.js';
+import { getDB, saveDB, getPlannerDB, savePlannerDB, getNotifSettings, saveNotifSettings, getAllMockTests, openMockDB, MOCK_STORE, getSleepLog, writeSleepLog, getSleepPending, setSleepPending, getSyllabusProgress, saveSyllabusProgress, markBackupDone, getYtHistory, saveYtHistory, getExamYear, setStoredExamYear } from './storage.js';
+import { renderYtHistory } from './youtube.js';
 // Forward references — land in later steps (ui.js Step 7; planner.js,
 // history.js, sleep.js, notifications.js Step 4; syllabus.js/mocktest.js
 // Step 5; charts.js Step 6). Only called inside function bodies, safe once
 // the full module graph is wired in main.js.
-import { showToast } from './ui.js';
+import { showToast, renderExamYearUI, tickCountdowns } from './ui.js';
 import { renderPlannerCalendar, renderSidebarTools } from './planner.js';
 import { updateLiveSummary } from './timer.js';
 import { loadHistoryData } from './history.js';
@@ -30,7 +31,9 @@ export async function exportDataJSON() {
         mockTests,
         sleepLog: getSleepLog(),
         sleepPending: getSleepPending(),
-        syllabusProgress: getSyllabusProgress()
+        syllabusProgress: getSyllabusProgress(),
+        ytHistory: getYtHistory(),
+        examYear: getExamYear()
     };
     downloadBlob(JSON.stringify(payload, null, 2), `jee-tracker-backup-${getTodayKey()}.json`, "application/json");
     markBackupDone();
@@ -67,6 +70,8 @@ export function importDataJSON(file) {
         if (payload.sleepLog && typeof payload.sleepLog === "object") { let slog = getSleepLog(); Object.assign(slog, payload.sleepLog); writeSleepLog(slog); renderSleepLog(); }
         if (payload.sleepPending) { setSleepPending(payload.sleepPending); renderSleepLog(); }
         if (payload.syllabusProgress && typeof payload.syllabusProgress === "object") { let sprog = getSyllabusProgress(); Object.assign(sprog, payload.syllabusProgress); saveSyllabusProgress(sprog); renderSyllabusTracker(); }
+        if (payload.ytHistory && Array.isArray(payload.ytHistory)) { saveYtHistory(payload.ytHistory); renderYtHistory(); }
+        if (payload.examYear) { setStoredExamYear(payload.examYear); renderExamYearUI(); tickCountdowns(); }
 
         initToday(); renderSidebarTools(); renderPlannerCalendar(); updateLiveSummary(); loadHistoryData(); renderGarden(); renderHeatmap(); renderTrendChart();
         showToast(`Backup imported — ${dayCount} day(s), ${mockCount} mock test(s) restored.`);

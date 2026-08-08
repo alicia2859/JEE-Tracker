@@ -280,15 +280,34 @@ if (!domain || !ALLOWED_EMAIL_DOMAINS.includes(domain.toLowerCase())) {
             }
         }
 
-        // Generate A4 report data
-        let today = new Date(); let days = []; let range = (type === 'weekly') ? 6 : 29;
-        for (let i = range; i >= 0; i--) { let d = new Date(today); d.setDate(today.getDate() - i); days.push(dateKeyFromWall(d.getTime())); }
-        let db = getDB(); let totalStudy = 0, totalBreak = 0; let aggregateSubjects = { "Physics": 0, "Organic Chemistry": 0, "Inorganic Chemistry": 0, "Physical Chemistry": 0, "Mathematics": 0, "Revision": 0, "Mock Test / Analysis": 0 };
-        days.forEach(key => { let day = db[key]; if (!day) return; ensureDayShape(day); totalStudy += day.totalStudy || 0; totalBreak += day.totalBreak || 0; for (let [cat, sec] of Object.entries(day.subjects)) { aggregateSubjects[cat] = (aggregateSubjects[cat] || 0) + (sec || 0); } });
-                     let subjectHtml = "";
+        // Generate report data. 'daily' reuses the single History-picker
+        // date (same source as Share Log / Download Log); weekly/monthly
+        // aggregate a date range exactly as before.
+        let db = getDB();
+        let days, totalStudy, totalBreak, aggregateSubjects, canvas, dateRangeLabel;
+        if (type === 'daily') {
+            let dt = document.getElementById("history-picker").value || getTodayKey();
+            let day = db[dt] || blankDay();
+            ensureDayShape(day);
+            totalStudy = day.totalStudy || 0;
+            totalBreak = day.totalBreak || 0;
+            aggregateSubjects = { ...day.subjects };
+            days = [dt];
+            dateRangeLabel = dt;
+            canvas = buildShareCanvas(dt);
+        } else {
+            let today = new Date(); let range = (type === 'weekly') ? 6 : 29;
+            days = [];
+            for (let i = range; i >= 0; i--) { let d = new Date(today); d.setDate(today.getDate() - i); days.push(dateKeyFromWall(d.getTime())); }
+            totalStudy = 0; totalBreak = 0;
+            aggregateSubjects = { "Physics": 0, "Organic Chemistry": 0, "Inorganic Chemistry": 0, "Physical Chemistry": 0, "Mathematics": 0, "Revision": 0, "Mock Test / Analysis": 0 };
+            days.forEach(key => { let day = db[key]; if (!day) return; ensureDayShape(day); totalStudy += day.totalStudy || 0; totalBreak += day.totalBreak || 0; for (let [cat, sec] of Object.entries(day.subjects)) { aggregateSubjects[cat] = (aggregateSubjects[cat] || 0) + (sec || 0); } });
+            dateRangeLabel = `${days[0]} → ${days[days.length - 1]}`;
+            canvas = buildReportCanvas(days, type === 'weekly' ? 'Weekly Study Report' : 'Monthly Study Report');
+        }
+        let subjectHtml = "";
         for (let [cat, sec] of Object.entries(aggregateSubjects)) { if (sec <= 0) continue; subjectHtml += `<div style="display: flex; justify-content: space-between; padding: 8px 16px; border-bottom: 1px solid #1e293b; font-size: 14px;"><span style="color: #94a3b8;">${cat}:&nbsp;</span><span style="color: #38bdf8; font-weight: 600;">${formatReadable(sec)}</span></div>`; }
         if (!subjectHtml) subjectHtml = "<div style='padding: 12px; color: #64748b; text-align:center;'>No study time logged.</div>";
-        let canvas = buildReportCanvas(days, type === 'weekly' ? 'Weekly Study Report' : 'Monthly Study Report');
         let imageBlob = await new Promise(resolve => canvas.toBlob(resolve));
         let reader = new FileReader(); 
         reader.readAsDataURL(imageBlob);
@@ -301,8 +320,8 @@ if (!domain || !ALLOWED_EMAIL_DOMAINS.includes(domain.toLowerCase())) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         to_email: emailInput,
-                        report_type: type === 'weekly' ? 'Weekly' : 'Monthly',
-                        date_range: `${days[0]} → ${days[days.length-1]}`,
+                        report_type: type === 'weekly' ? 'Weekly' : (type === 'monthly' ? 'Monthly' : 'Daily'),
+                        date_range: dateRangeLabel,
                         total_study: formatReadable(totalStudy),
                         total_break: formatReadable(totalBreak),
                         streak: computeStreak(db),

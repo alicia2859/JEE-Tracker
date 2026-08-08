@@ -25,7 +25,11 @@ export function addTodo() {
 export function renderSidebarTools() {
     let todayKey = getTodayKey(); let db = getPlannerDB(); let tasks = db[todayKey] || [];
     let todoHtml = ""; if (tasks.length === 0) todoHtml = "<div style='color:var(--muted); font-size:12px; margin-top:8px;'>No tasks for today yet.</div>";
-    tasks.forEach((t, i) => { todoHtml += `<div class="todo-item"><input type="checkbox" ${t.done?'checked':''} onchange="toggleTodo(${i})"><span style="flex:1; ${t.done?'text-decoration:line-through;color:var(--muted);':''}">${escapeHtml(t.text)}</span><button class="del" onclick="deleteTodo(${i})">✕</button></div>`; });
+    // Display order: incomplete tasks first, completed tasks last (stable
+    // within each group). Storage order (and each task's real index i, used
+    // by toggleTodo/deleteTodo) is untouched — only the render order changes.
+    let order = tasks.map((t, i) => i).sort((a, b) => (tasks[a].done === tasks[b].done) ? (a - b) : (tasks[a].done ? 1 : -1));
+    order.forEach(i => { let t = tasks[i]; todoHtml += `<div class="todo-item"><input type="checkbox" ${t.done?'checked':''} onchange="toggleTodo(${i})"><span style="flex:1; ${t.done?'text-decoration:line-through;color:var(--muted);':''}">${escapeHtml(t.text)}</span><button class="del" onclick="deleteTodo(${i})">✕</button></div>`; });
     document.getElementById("todo-list").innerHTML = todoHtml;
 }
 

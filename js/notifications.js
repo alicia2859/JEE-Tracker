@@ -166,14 +166,14 @@ function checkExamMilestones(s) {
 // NEW IMPLEMENTATION — storage.js's markBackupDone() tracked the timestamp
 // (via exportDataJSON) but nothing ever read it back. Reminds once every 7
 // days if no backup has been exported.
-const BACKUP_REMINDER_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000;
+const BACKUP_REMINDER_INTERVAL_MS = 2 * 24 * 60 * 60 * 1000;
 function checkBackupReminder() {
     let last = getLastBackupAt();
     if (!last) return; // main.js seeds this on first run; nothing to compare yet
     if (Date.now() - last < BACKUP_REMINDER_INTERVAL_MS) return;
     let flagKey = "jee_backup_reminder_" + getTodayKey();
     if (!getRawFlag(flagKey)) {
-        notify("Backup reminder", "It's been a week since your last backup — export one from Settings.");
+        notify("Backup reminder", "It's been 2 days since your last backup — export one now from Settings.");
         setRawFlag(flagKey, "1");
     }
 }

